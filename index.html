@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LeadFlow Pro — AI-Powered Lead Generation</title>
+  <meta name="description" content="Discover potential clients with AI-powered lead generation. Search by industry and location.">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="bg-orbs"><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div></div>
+
+  <!-- Navbar -->
+  <nav class="navbar" id="navbar">
+    <div class="navbar-brand">
+      <svg class="navbar-logo" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+        <defs><linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#6366f1"/><stop offset="100%" stop-color="#22d3ee"/></linearGradient></defs>
+        <rect width="64" height="64" rx="14" fill="#0a0a1a"/>
+        <path d="M20 44V20l12 12 12-12v24" stroke="url(#lg)" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="32" cy="22" r="6" fill="url(#lg)" opacity="0.8"/>
+      </svg>
+      <span class="navbar-title">LeadFlow <span class="text-gradient">Pro</span></span>
+    </div>
+    <div class="navbar-actions">
+      <div class="lang-toggle">
+        <button class="lang-btn active" id="langEn" data-lang="en">EN</button>
+        <button class="lang-btn" id="langAr" data-lang="ar">عربي</button>
+      </div>
+      <span class="navbar-badge">⚡ AI-Powered</span>
+    </div>
+  </nav>
+
+  <main>
+    <!-- Hero + Search -->
+    <section class="hero" id="hero">
+      <div class="container">
+        <h1 class="hero-title">
+          <span data-i18n="heroTitle1">Discover Your Next</span><br>
+          <span class="text-gradient" data-i18n="heroTitle2">Business Leads</span>
+        </h1>
+        <p class="hero-subtitle" data-i18n="heroSubtitle">AI-powered lead generation platform. Search by industry and location to find potential clients instantly.</p>
+
+        <div class="search-card glass" id="searchCard">
+          <form class="search-form" id="searchForm" onsubmit="return false;">
+            <div class="form-group">
+              <label for="industryInput">
+                <svg viewBox="0 0 24 24"><path d="M3 21V7l9-4 9 4v14"/><path d="M9 21V11h6v10"/></svg>
+                <span data-i18n="industryLabel">Industry / Sector</span>
+              </label>
+              <input type="text" id="industryInput" data-i18n-placeholder="industryPlaceholder" placeholder="e.g., Furniture Factory, Restaurant, Hotel..." autocomplete="off">
+            </div>
+            <div class="form-group">
+              <label for="locationInput">
+                <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+                <span data-i18n="locationLabel">Location (coordinates or city)</span>
+              </label>
+              <input type="text" id="locationInput" data-i18n-placeholder="locationPlaceholder" placeholder="e.g., 39.6484, 27.8826 or Istanbul" autocomplete="off">
+            </div>
+            <div class="form-group full">
+              <label for="radiusSlider">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+                <span data-i18n="radiusLabel">Search Radius</span>
+              </label>
+              <div class="range-wrap">
+                <input type="range" id="radiusSlider" min="1" max="100" value="40">
+                <span class="range-value" id="radiusValue">40 km</span>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-search" type="button" id="searchBtn">
+              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+              <span id="searchBtnText" data-i18n="searchBtn">Search Leads</span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Loading -->
+    <section class="loading-section" id="loadingSection" style="display:none;">
+      <div class="loading-content">
+        <div class="loading-dots"><span></span><span></span><span></span></div>
+        <p class="loading-text" id="loadingText" data-i18n="loadingText">Searching for potential leads...</p>
+        <div class="loading-progress"><div class="loading-progress-bar"></div></div>
+      </div>
+    </section>
+
+    <!-- Dashboard -->
+    <section class="dashboard" id="dashboard" style="display:none;">
+      <div class="container">
+        <div class="stats-grid" id="statsGrid"></div>
+
+        <div class="charts-grid" id="chartsGrid">
+          <div class="chart-card glass anim-fade-up anim-delay-1">
+            <h3 data-i18n="ratingDist">Rating Distribution</h3>
+            <canvas id="ratingChart"></canvas>
+          </div>
+          <div class="chart-card glass anim-fade-up anim-delay-2">
+            <h3 data-i18n="bizTypes">Top Business Types</h3>
+            <canvas id="typesChart"></canvas>
+          </div>
+        </div>
+
+        <div class="table-controls">
+          <div class="table-search">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <input type="text" id="tableSearchInput" data-i18n-placeholder="searchPlaceholder" placeholder="Search in results...">
+          </div>
+          <div class="table-actions">
+            <select id="ratingFilter">
+              <option value="0" data-i18n="allRatings">All Ratings</option>
+              <option value="4">⭐ 4+</option>
+              <option value="3">⭐ 3+</option>
+              <option value="2">⭐ 2+</option>
+            </select>
+            <button class="btn btn-outline" id="exportCSV">
+              <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              CSV
+            </button>
+            <button class="btn btn-outline" id="exportExcel">
+              <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Excel
+            </button>
+          </div>
+        </div>
+
+        <div class="table-card glass">
+          <table id="leadsTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th data-sort="name"><span data-i18n="thName">Name</span> <span class="sort-icon">▲</span></th>
+                <th data-sort="address"><span data-i18n="thAddress">Address</span> <span class="sort-icon">▲</span></th>
+                <th data-sort="phone"><span data-i18n="thPhone">Phone</span> <span class="sort-icon">▲</span></th>
+                <th><span data-i18n="thWebsite">Website</span></th>
+                <th data-sort="rating"><span data-i18n="thRating">Rating</span> <span class="sort-icon">▲</span></th>
+              </tr>
+            </thead>
+            <tbody id="leadsTableBody"></tbody>
+          </table>
+        </div>
+
+        <div class="pagination" id="pagination"></div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

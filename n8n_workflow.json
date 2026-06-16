@@ -1,0 +1,217 @@
+{
+  "name": "LeadFlow Pro - Lead Generation",
+  "nodes": [
+    {
+      "id": "f3bd2686-6f2c-402c-b329-d196151d5e20",
+      "name": "LeadFlow Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [0, 0],
+      "parameters": {
+        "path": "leadflow-search",
+        "httpMethod": "GET",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      }
+    },
+    {
+      "id": "cd530a88-e6ed-4887-8527-50df4afffb24",
+      "name": "Google Maps Search",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [224, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "https://maps.googleapis.com/maps/api/place/textsearch/json",
+        "sendQuery": true,
+        "specifyQuery": "json",
+        "jsonQuery": "={{ JSON.stringify({ query: /^-?\\d+(\\.\\d+)?[ ,]+-?\\d+(\\.\\d+)?$/.test($json.query.location) ? $json.query.query : ($json.query.query + ' in ' + $json.query.location), key: 'YOUR_GOOGLE_MAPS_API_KEY', ...(/^-?\\d+(\\.\\d+)?[ ,]+-?\\d+(\\.\\d+)?$/.test($json.query.location) ? { location: $json.query.location.trim(), radius: $json.query.radius } : {}) }) }}"
+      }
+    },
+    {
+      "id": "433b7752-989b-45c4-b688-8d2e2476c50f",
+      "name": "Split Results",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [448, 0],
+      "parameters": {
+        "fieldToSplitOut": "results",
+        "options": {}
+      }
+    },
+    {
+      "id": "b8501394-a154-4942-b8ae-7feceeddf027",
+      "name": "Get Place Details",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [672, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "https://maps.googleapis.com/maps/api/place/details/json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "place_id",
+              "value": "={{ $json.place_id }}"
+            },
+            {
+              "name": "fields",
+              "value": "formatted_phone_number,website"
+            },
+            {
+              "name": "key",
+              "value": "YOUR_GOOGLE_MAPS_API_KEY"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "c2ed29a7-4566-40c8-b2eb-8d2bb0986079",
+      "name": "Build Lead Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [896, 0],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "name",
+              "name": "name",
+              "value": "={{ $(\"Split Results\").item.json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "address",
+              "name": "formatted_address",
+              "value": "={{ $(\"Split Results\").item.json.formatted_address }}",
+              "type": "string"
+            },
+            {
+              "id": "rating",
+              "name": "rating",
+              "value": "={{ $(\"Split Results\").item.json.rating }}",
+              "type": "number"
+            },
+            {
+              "id": "reviews",
+              "name": "user_ratings_total",
+              "value": "={{ $(\"Split Results\").item.json.user_ratings_total }}",
+              "type": "number"
+            },
+            {
+              "id": "phone",
+              "name": "formatted_phone_number",
+              "value": "={{ $json.result.formatted_phone_number }}",
+              "type": "string"
+            },
+            {
+              "id": "website",
+              "name": "website",
+              "value": "={{ $json.result.website }}",
+              "type": "string"
+            },
+            {
+              "id": "place_id",
+              "name": "place_id",
+              "value": "={{ $(\"Split Results\").item.json.place_id }}",
+              "type": "string"
+            },
+            {
+              "id": "types",
+              "name": "types",
+              "value": "={{ $(\"Split Results\").item.json.types }}",
+              "type": "array"
+            },
+            {
+              "id": "lat",
+              "name": "lat",
+              "value": "={{ $(\"Split Results\").item.json.geometry.location.lat }}",
+              "type": "number"
+            },
+            {
+              "id": "lng",
+              "name": "lng",
+              "value": "={{ $(\"Split Results\").item.json.geometry.location.lng }}",
+              "type": "number"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "b997eb09-dbcf-4979-a103-850541536247",
+      "name": "Send Results",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [1120, 0],
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "LeadFlow Webhook": {
+      "main": [
+        [
+          {
+            "node": "Google Maps Search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Maps Search": {
+      "main": [
+        [
+          {
+            "node": "Split Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Results": {
+      "main": [
+        [
+          {
+            "node": "Get Place Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Place Details": {
+      "main": [
+        [
+          {
+            "node": "Build Lead Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Lead Response": {
+      "main": [
+        [
+          {
+            "node": "Send Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
